@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
 import helmet from 'helmet';
@@ -11,6 +11,7 @@ async function bootstrap() {
       key: fs.readFileSync('./key.pem'),
       cert: fs.readFileSync('./cerf.pem'),
     };
+    Logger.debug('Running On Https...');
   }
 
   const app = await NestFactory.create(AppModule, {
