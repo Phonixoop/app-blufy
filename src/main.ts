@@ -1,10 +1,14 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import * as express from 'express';
 import * as fs from 'fs';
 import helmet from 'helmet';
+import * as https from 'node:https';
 import { join } from 'path';
 import { AppModule } from './app.module';
 declare const module: any;
+
 async function bootstrap() {
   let httpsOptions = null;
 
@@ -12,11 +16,8 @@ async function bootstrap() {
     key: fs.readFileSync(join(process.cwd(), 'src', 'key.pem')),
     cerf: fs.readFileSync(join(process.cwd(), 'src', 'cert.pem')),
   };
-  Logger.debug('Running On Https...');
-
-  const app = await NestFactory.create(AppModule, {
-    httpsOptions,
-  });
+  const server = express();
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
   app.use(helmet());
   app.enableCors();
@@ -38,8 +39,9 @@ async function bootstrap() {
     next();
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  await app.init();
 
-  await app.listen(process.env.PORT || 3000);
+  https.createServer(httpsOptions, server).listen(process.env.PORT || 3000);
   // if (module.hot) {
   //   module.hot.accept();
   //   module.hot.dispose(() => app.close());
