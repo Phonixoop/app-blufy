@@ -12,7 +12,7 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-  @Get('uploads/1658843109771_bg_mobile.jpg:name')
+  @Get('uploads/:name')
   public getImage(@Param('name') name, @Res() res: Response): Observable<any> {
     return of(res.sendFile(join(process.cwd(), 'uploads/' + name)));
   }
