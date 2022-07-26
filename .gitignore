@@ -37,3 +37,5 @@ lerna-debug.log*
 /node_modules
 /uploads
 /.env
+/src/key.pem
+/src/cert.pem
