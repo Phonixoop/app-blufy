@@ -2,17 +2,17 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as fs from 'fs';
 import helmet from 'helmet';
+import { join } from 'path';
 import { AppModule } from './app.module';
 declare const module: any;
 async function bootstrap() {
   let httpsOptions = null;
-  if (fs.existsSync('./key.pem') && fs.existsSync('./cerf.pem')) {
-    httpsOptions = {
-      key: fs.readFileSync('./key.pem'),
-      cert: fs.readFileSync('./cerf.pem'),
-    };
-    Logger.debug('Running On Https...');
-  }
+
+  httpsOptions = {
+    key: fs.readFileSync(join(process.cwd(), 'src', 'key.pem')),
+    cerf: fs.readFileSync(join(process.cwd(), 'src', 'cert.pem')),
+  };
+  Logger.debug('Running On Https...');
 
   const app = await NestFactory.create(AppModule, {
     httpsOptions,

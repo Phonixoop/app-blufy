@@ -17,7 +17,11 @@ export class OrdersService {
     try {
       const order = new this.Order(createOrderInput);
       await order.save();
-      return { statusCode: HttpStatus.OK, ok: true };
+      return {
+        statusCode: HttpStatus.OK,
+        ok: true,
+        data: JSON.stringify(createOrderInput),
+      };
     } catch (e) {
       return { statusCode: HttpStatus.BAD_REQUEST, ok: false };
     }
