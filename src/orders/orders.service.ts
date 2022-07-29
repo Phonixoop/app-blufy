@@ -13,21 +13,60 @@ export class OrdersService {
     createOrderInput: CreateOrderInput,
     @Res() res: Response,
   ): Promise<APIResponse> {
-    let result: APIResponse;
+    let result: APIResponse = null;
     try {
       const order = new this.Order(createOrderInput);
       await order.save();
-      return {
+
+      result = {
         statusCode: HttpStatus.OK,
         ok: true,
-        data: JSON.stringify(createOrderInput),
+        data: createOrderInput,
       };
+      return result;
     } catch (e) {
       return { statusCode: HttpStatus.BAD_REQUEST, ok: false };
     }
   }
 
-  findAll() {
-    return `This action returns all orders`;
+  public async findAll(pageNumber:number,perPage:number, orderStatus: OrderStatus) {
+    let result: APIResponse = null; 
+    try {
+   
+      let query = orderStatus ? { status: orderStatus.status } : {};
+
+      const page = pageNumber || 1;
+      const pageSize = perPage || 5;
+      const skip = (pageNumber - 1) * pageSize;
+      const total = await this.Order.countDocuments(query);
+
+      const pages = Math.ceil(total / pageSize);
+      if (page > pages) {
+        result = {
+          statusCode: HttpStatus.OK,
+          ok: false,
+          message :"صفحه ای پیدا نشد"
+        };
+        return result;
+      }
+  
+      const orders = await this.Order.find(query,
+      )
+        .sort({ createdAt: 'descending' })
+        .limit(pageSize)
+        .skip(skip);
+        // return data
+      result = {
+        statusCode: HttpStatus.OK,
+        ok: true,
+        data:{
+          ...orders,
+          total:total
+        }
+      };
+      return result;
+    } catch (e) {
+      return { statusCode: HttpStatus.BAD_REQUEST, ok: false };
+    }
   }
 }

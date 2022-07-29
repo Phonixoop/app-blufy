@@ -1,7 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
-@Schema({ timestamps: true })
 export class Order extends Document {
   @Prop({ required: false })
   name!: string;
@@ -19,12 +17,17 @@ export class Order extends Document {
   mess?: string;
 
   @Prop({ required: false })
-  attachments: string[];
+  attachments?: string[];
 
-  @Prop({ default: Date.now })
+  @Prop({required: true, default: 'notChecked' })
+  status!: 'InProgress' | 'Done' | 'notChecked';
+
+  @Prop({ default: Date.now, index: true })
   createdAt!: Date;
 
   @Prop({ default: Date.now })
   updatedAt!: Date;
 }
+
 export const OrderEntitySchema = SchemaFactory.createForClass(Order);
+

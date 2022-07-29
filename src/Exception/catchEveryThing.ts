@@ -1,10 +1,6 @@
 import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  HttpStatus,
-  Logger,
+  ArgumentsHost, Catch, ExceptionFilter, HttpException,
+  HttpStatus
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 
@@ -24,22 +20,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const httpResponse =
+    const httpMessage =
       exception instanceof HttpException
-        ? exception.getResponse()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = null;
-    if (httpResponse['message'])
-      message = JSON.parse(
-        JSON.stringify(httpResponse['message']),
-      );
+        ? exception.initMessage()
+        : "hi";
+    // let message = null;
+    // if (httpResponse['message'])
+    //   message = JSON.parse(
+    //     JSON.stringify(httpResponse['message']),
+    //   );
 
-    Logger.debug(JSON.stringify(httpResponse));
+  
 
     const responseBody = {
       statusCode: httpStatus,
-      message: message,
-      timestamp: new Date().toISOString(),
+      ok:false,
+      message:httpMessage,
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
     };
 

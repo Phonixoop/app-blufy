@@ -1,9 +1,11 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
 import * as fs from 'fs';
 import helmet from 'helmet';
+import * as http from 'node:http';
 import * as https from 'node:https';
 import { join } from 'path';
 import { AppModule } from './app.module';
@@ -12,16 +14,14 @@ declare const module: any;
 async function bootstrap() {
   let httpsOptions = null;
 
-  httpsOptions = {
-    key: fs.readFileSync(join(process.cwd(), 'src', 'key.pem')),
-    cerf: fs.readFileSync(join(process.cwd(), 'src', 'cert.pem')),
-  };
+  Logger.debug('Running On Https...', join(__dirname, 'cert.pem'));
+
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
+  await app.init();
   app.use(helmet());
   app.enableCors();
-
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header(
@@ -38,15 +38,48 @@ async function bootstrap() {
     }
     next();
   });
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  await app.init();
 
-  https.createServer(httpsOptions, server).listen(process.env.PORT || 3000);
+  const config = new DocumentBuilder()
+  .setTitle('Cats example')
+  .setDescription('The cats API description')
+  .setVersion('1.0')
+  .addTag('app')
+  .build();
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api', app, document);
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  if(process.env.PRODUCTION)
+  {
+    https
+    .createServer(
+      {
+        key: fs.readFileSync(join(__dirname, 'key.pem')),
+        cert: fs.readFileSync(join(__dirname, 'cert.pem')),
+      },
+      server,
+    )
+    .listen(3000, 'api.blufy.ir', () => {
+      console.log(`app is listening on port ${3000}`);
+    });
+  }
+  else
+  {
+    http
+    .createServer(server,
+    )
+    .listen(3000, () => {
+      console.log(`app is listening on port ${3000}`);
+    });
+  }
+
+
   // if (module.hot) {
   //   module.hot.accept();
   //   module.hot.dispose(() => app.close());
   // }
 }
+
 bootstrap();
 
 // fetch('https://app.blufy.ir:3001/feedback', {

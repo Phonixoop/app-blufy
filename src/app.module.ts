@@ -19,14 +19,19 @@ import { OrdersModule } from './orders/orders.module';
     }),
     ServeStaticModule.forRoot({
       serveStaticOptions: {
-        index: false,
       },
       rootPath: join('../uploads'),
     }),
     OrdersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: AllExceptionsFilter,
+    // },
+  ]
 })
 export class AppModule {
   constructor() {

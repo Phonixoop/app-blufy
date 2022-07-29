@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Header,
+  InternalServerErrorException,
   Post,
   Res,
   UploadedFiles,
@@ -17,6 +19,7 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
+  @Header('Access-Control-Allow-Origin', '*')
   @Post('create')
   @UseInterceptors(
     FilesInterceptor('attachments[]', 10, {
@@ -25,7 +28,6 @@ export class OrdersController {
       storage: diskStorage({
         destination: './uploads',
         filename: function (req, file, callback) {
-          console.log(file);
           callback(null, Date.now() + '_' + file.originalname);
         },
       }),
@@ -36,18 +38,47 @@ export class OrdersController {
     @Body() createOrderInput: CreateOrderInput,
     @UploadedFiles() attachments?: Array<Express.Multer.File>,
   ) {
-    const attach = attachments.map((a) => {
-      return a.path;
-    });
-    createOrderInput.attachments = attach;
-    const result = await this.ordersService.create(createOrderInput, res);
-    const payload: APIResponse = {
-      ok: result.ok,
-      message: result.message,
-      data: result.data,
-      statusCode: result.statusCode,
-    };
+    try {
+      const attach = attachments.map((a) => {
+        return a.path;
+      });
+      createOrderInput.attachments = attach;
+      const result = await this.ordersService.create(createOrderInput, res);
+      const payload: APIResponse = {
+        ok: result.ok,
+        message: result.message,
+        data: result.data,
+        statusCode: result.statusCode,
+      };
 
-    return res.status(result.statusCode).json(payload);
+      return res.status(result.statusCode).json(payload);
+    } catch {
+      return new InternalServerErrorException('خطای سرور');
+    }
+  }
+
+  @Post('getOrders')
+  public async findAll(
+    @Res() res: Response,
+    @Body() body: { page?: number, perPage?: number; skip?: number, orderStatus: OrderStatus },
+  ) {
+    try {
+ 
+      const result = await this.ordersService.findAll(
+        body.page,
+        body.perPage,
+        body.orderStatus,
+      );
+      const payload: APIResponse = {
+        ok: result.ok,
+        message: result.message,
+        data: result.data,
+        statusCode: result.statusCode,
+      };
+
+      return res.status(result.statusCode).json(payload);
+    } catch {
+      return new InternalServerErrorException('خطای سرور');
+    }
   }
 }

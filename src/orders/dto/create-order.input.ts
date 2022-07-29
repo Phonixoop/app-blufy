@@ -1,5 +1,10 @@
 import {
-  ArrayMinSize, IsArray, IsEmail, IsNotEmpty, IsOptional, IsString,
+  ArrayMinSize,
+  IsArray,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
   MaxLength,
   MinLength
 } from 'class-validator';
