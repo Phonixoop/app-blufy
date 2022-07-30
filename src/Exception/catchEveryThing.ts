@@ -22,20 +22,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const httpMessage =
       exception instanceof HttpException
-        ? exception.initMessage()
-        : "hi";
-    // let message = null;
-    // if (httpResponse['message'])
-    //   message = JSON.parse(
-    //     JSON.stringify(httpResponse['message']),
-    //   );
-
-  
+        ? exception.getResponse()['message']
+        : null;
+        const httpError =
+        exception instanceof HttpException
+          ? exception.getResponse()['error']
+          : null;
+ 
 
     const responseBody = {
       statusCode: httpStatus,
       ok:false,
       message:httpMessage,
+      error:httpError,
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
     };
 

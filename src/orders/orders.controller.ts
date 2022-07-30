@@ -2,14 +2,14 @@ import {
   Body,
   Controller,
   Header,
-  InternalServerErrorException,
-  Post,
+  InternalServerErrorException, Post,
+  Req,
   Res,
   UploadedFiles,
   UseInterceptors
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { diskStorage } from 'multer';
 import { APIResponse } from 'src/model';
 import { CreateOrderInput } from './dto/create-order.input';
@@ -34,15 +34,18 @@ export class OrdersController {
     }),
   )
   public async create(
+    @Req() req: Request,
     @Res() res: Response,
     @Body() createOrderInput: CreateOrderInput,
     @UploadedFiles() attachments?: Array<Express.Multer.File>,
   ) {
+    // req.protocol+"://"+req.hostname+":"+req.socket.localPort+"/" + 
     try {
       const attach = attachments.map((a) => {
-        return a.path;
-      });
+        return a.path.replace('\\', '/');
+      });     
       createOrderInput.attachments = attach;
+    console.log(createOrderInput)
       const result = await this.ordersService.create(createOrderInput, res);
       const payload: APIResponse = {
         ok: result.ok,
@@ -51,7 +54,7 @@ export class OrdersController {
         statusCode: result.statusCode,
       };
 
-      return res.status(result.statusCode).json(payload);
+       return res.status(200).json(payload);
     } catch {
       return new InternalServerErrorException('خطای سرور');
     }
@@ -81,4 +84,6 @@ export class OrdersController {
       return new InternalServerErrorException('خطای سرور');
     }
   }
+
+
 }

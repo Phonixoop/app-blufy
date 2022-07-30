@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerModule } from '@nestjs/throttler';
 import 'dotenv/config';
-import { join } from 'path';
+import mongoose from 'mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { OrdersModule } from './orders/orders.module';
@@ -16,11 +15,6 @@ import { OrdersModule } from './orders/orders.module';
     MongooseModule.forRoot(process.env.MONGODB, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    }),
-    ServeStaticModule.forRoot({
-      serveStaticOptions: {
-      },
-      rootPath: join('../uploads'),
     }),
     OrdersModule,
   ],
@@ -35,6 +29,7 @@ import { OrdersModule } from './orders/orders.module';
 })
 export class AppModule {
   constructor() {
+    mongoose.set('debug', true);
     console.log('MONGODB CONNECTION STRING ', process.env.MONGODB);
     console.log('PORT ', process.env.PORT || 3000);
   }

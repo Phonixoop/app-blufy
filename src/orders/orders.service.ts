@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, Res } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
 import { Model } from 'mongoose';
@@ -11,21 +11,22 @@ export class OrdersService {
 
   public async create(
     createOrderInput: CreateOrderInput,
-    @Res() res: Response,
+     res: Response,
   ): Promise<APIResponse> {
     let result: APIResponse = null;
     try {
-      const order = new this.Order(createOrderInput);
-      await order.save();
+ 
+      const order = new this.Order(createOrderInput);     
+      await order.save({validateBeforeSave:true});
 
       result = {
         statusCode: HttpStatus.OK,
         ok: true,
-        data: createOrderInput,
+        data: order,
       };
       return result;
     } catch (e) {
-      return { statusCode: HttpStatus.BAD_REQUEST, ok: false };
+      return { statusCode: HttpStatus.BAD_REQUEST, ok: false,message:e };
     }
   }
 
@@ -44,13 +45,13 @@ export class OrdersService {
       if (page > pages) {
         result = {
           statusCode: HttpStatus.OK,
-          ok: false,
-          message :"صفحه ای پیدا نشد"
+          ok: true,
+          message :"سفارشی وجود ندارد"
         };
         return result;
       }
   
-      const orders = await this.Order.find(query,
+      let orders = await this.Order.find(query,
       )
         .sort({ createdAt: 'descending' })
         .limit(pageSize)
@@ -70,3 +71,17 @@ export class OrdersService {
     }
   }
 }
+
+
+/*
+
+{
+        name:createOrderInput.name,
+        email:createOrderInput.email,
+        service:createOrderInput.service,
+        mess:createOrderInput.mess,
+        budget:createOrderInput.budget,
+        attachments:createOrderInput.attachments,
+      }
+
+      */

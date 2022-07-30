@@ -1,7 +1,8 @@
-import { Prop, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+@Schema({ timestamps: true })
 export class Order extends Document {
-  @Prop({ required: false })
+  @Prop({ required: true })
   name!: string;
 
   @Prop({ required: true })
@@ -13,7 +14,7 @@ export class Order extends Document {
   @Prop({ required: false })
   budget?: string;
 
-  @Prop({ required: false, name: 'message' })
+  @Prop({ required: false })
   mess?: string;
 
   @Prop({ required: false })
@@ -22,10 +23,10 @@ export class Order extends Document {
   @Prop({required: true, default: 'notChecked' })
   status!: 'InProgress' | 'Done' | 'notChecked';
 
-  @Prop({ default: Date.now, index: true })
+  @Prop({ required: true, default: Date.now })
   createdAt!: Date;
 
-  @Prop({ default: Date.now })
+  @Prop({required: true, default: Date.now })
   updatedAt!: Date;
 }
 

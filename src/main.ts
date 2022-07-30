@@ -1,7 +1,6 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as express from 'express';
 import * as fs from 'fs';
 import helmet from 'helmet';
@@ -12,16 +11,13 @@ import { AppModule } from './app.module';
 declare const module: any;
 
 async function bootstrap() {
-  let httpsOptions = null;
-
-  Logger.debug('Running On Https...', join(__dirname, 'cert.pem'));
 
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
-  await app.init();
   app.use(helmet());
   app.enableCors();
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header(
@@ -38,17 +34,13 @@ async function bootstrap() {
     }
     next();
   });
+  await app.init();
 
-  const config = new DocumentBuilder()
-  .setTitle('Cats example')
-  .setDescription('The cats API description')
-  .setVersion('1.0')
-  .addTag('app')
-  .build();
-const document = SwaggerModule.createDocument(app, config);
-SwaggerModule.setup('api', app, document);
+ 
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+
+ 
   if(process.env.PRODUCTION)
   {
     https

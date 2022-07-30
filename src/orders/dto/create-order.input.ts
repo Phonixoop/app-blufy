@@ -11,7 +11,7 @@ import {
 export class CreateOrderInput {
   @IsNotEmpty({ message: '!نام نباید خالی باشد' })
   @IsString({ message: '!نام باید رشته باشد' })
-  @MinLength(3, { message: '!نام بیشتر از 255 مجاز نیست!' })
+  @MinLength(3, { message: '!نام کم تر از 3 مجاز نیست' })
   @MaxLength(255, { message: '!نام بیشتر از 255 مجاز نیست!' })
   public name!: string;
 
