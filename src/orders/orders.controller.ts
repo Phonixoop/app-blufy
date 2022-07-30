@@ -45,7 +45,6 @@ export class OrdersController {
         return a.path.replace('\\', '/');
       });     
       createOrderInput.attachments = attach;
-    console.log(createOrderInput)
       const result = await this.ordersService.create(createOrderInput, res);
       const payload: APIResponse = {
         ok: result.ok,
