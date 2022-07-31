@@ -2,6 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 @Schema({ timestamps: true })
 export class Order extends Document {
+
+  // @Prop({ required: true, unique: true})
+  // _id!: Types.ObjectId;
+  
   @Prop({ required: true })
   name!: string;
 
@@ -20,8 +24,8 @@ export class Order extends Document {
   @Prop({ required: false })
   attachments?: string[];
 
-  @Prop({required: true, default: 'notChecked' })
-  status!: 'InProgress' | 'Done' | 'notChecked';
+  @Prop({required: true, default: 'NotChecked' })
+  status!: 'InProgress' | 'Done' | 'NotChecked';
 
   @Prop({ required: true, default: Date.now })
   createdAt!: Date;

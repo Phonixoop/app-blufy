@@ -2,7 +2,7 @@ import {
   Body,
   Controller,
   Header,
-  InternalServerErrorException, Post,
+  InternalServerErrorException, Patch, Post,
   Req,
   Res,
   UploadedFiles,
@@ -13,6 +13,8 @@ import { Request, Response } from 'express';
 import { diskStorage } from 'multer';
 import { APIResponse } from 'src/model';
 import { CreateOrderInput } from './dto/create-order.input';
+import { GetOrdersInput } from './dto/get-orders.input';
+import { UpdateOrderStatusInput } from './dto/update-order.input';
 import { UploadedFileFilter } from './filter/imagefile.filter';
 import { OrdersService } from './orders.service';
 @Controller('orders')
@@ -62,14 +64,12 @@ export class OrdersController {
   @Post('getOrders')
   public async findAll(
     @Res() res: Response,
-    @Body() body: { page?: number, perPage?: number; skip?: number, orderStatus: OrderStatus },
+    @Body() body: GetOrdersInput,
   ) {
     try {
  
-      const result = await this.ordersService.findAll(
-        body.page,
-        body.perPage,
-        body.orderStatus,
+      const result = await this.ordersService.getOrders(
+        body
       );
       const payload: APIResponse = {
         ok: result.ok,
@@ -84,5 +84,26 @@ export class OrdersController {
     }
   }
 
+
+  @Patch('updateOrderStatus')
+  public async updateOrderStatus(@Res() res:Response,@Body() body:UpdateOrderStatusInput)
+  {
+    try {
+ 
+      const result = await this.ordersService.updateOrderStatus(
+        body
+      );
+      const payload: APIResponse = {
+        ok: result.ok,
+        message: result.message,
+        data: result.data,
+        statusCode: result.statusCode,
+      };
+
+      return res.status(result.statusCode).json(payload);
+    } catch {
+      return new InternalServerErrorException('خطای سرور');
+    }
+  }
 
 }

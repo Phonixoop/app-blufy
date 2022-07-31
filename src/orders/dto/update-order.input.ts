@@ -1,4 +1,21 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateOrderInput } from './create-order.input';
+import { IsEnum, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { OrderStatus, OrderStatuseEnum } from '../entities/interfaces';
 
-export class UpdateOrderDto extends PartialType(CreateOrderInput) {}
+export class UpdateOrderStatusInput {
+
+    @IsNotEmpty()
+    @IsString()
+    @MaxLength(50)
+    orderId:string;
+
+    @IsNotEmpty()
+    @IsEnum(OrderStatuseEnum)
+    public orderStatus?: OrderStatus;
+
+}
+
+
+
+let update = new UpdateOrderStatusInput();
+
+

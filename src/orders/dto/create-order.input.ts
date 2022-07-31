@@ -29,10 +29,11 @@ export class CreateOrderInput {
 
   @IsOptional()
   @IsString({ message: '!قیمت باید رشته باشد' })
+  @MaxLength(20)
   public budget?: string;
 
   @IsOptional()
-  @MaxLength(500, { message: 'توضیح بیش تر از 500 کاراکتر مجاز نیست!' })
+  @MaxLength(600, { message: 'توضیح بیش تر از 600 کاراکتر مجاز نیست!' })
   public mess?: string;
 
   @IsOptional()
