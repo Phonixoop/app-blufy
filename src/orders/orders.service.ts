@@ -62,10 +62,10 @@ export class OrdersService {
       result = {
         statusCode: HttpStatus.OK,
         ok: true,
-        data:{
-          ...orders,
-          total:total,
-          
+        data: 
+        {
+          orders:orders,
+          total:total
         }
       };
       return result;
